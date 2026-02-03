@@ -8,6 +8,7 @@ function auth(role) {
 
         try {
             let decoded;
+
             if (role === 'admin') {
                 decoded = jwt.verify(token, ADMIN_SECRET);
             } else if (role === 'employee') {
