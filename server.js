@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 
 const connectDB = require('./config/db');
+const adminAuthRoutes = require('./routes/adminAuthRoutes');
 
 
 // Initialize app
@@ -19,12 +20,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
 
 app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/admin', adminAuthRoutes);
 
 
 
