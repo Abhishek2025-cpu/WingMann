@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
@@ -26,7 +26,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', require('./routes/auth.routes'));
 
-// Error Middleware (must be last)
+
 
 
 // Start Server
