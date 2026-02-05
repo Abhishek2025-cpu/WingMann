@@ -5,10 +5,12 @@ const express = require('express');
 const cors = require('cors');
 
 const connectDB = require('./config/db');
+const userDataRoutes = require("./routes/userDataRoutes");
+const PreferencRoutes = require("./routes/preferenceRoutes")
 
 
 
-// Initialize app
+// Initialize app`
 const app = express();
 
 // Connect to MongoDB
@@ -33,13 +35,15 @@ app.get('/health', (req, res) => {
 
 
 app.use('/api/auth', require('./routes/auth.routes'));
+app.use("/api/userData", userDataRoutes);
+app.use("/api/preference",PreferencRoutes);
 
 
 
 
 
 // Start Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
