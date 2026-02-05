@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 
 const connectDB = require('./config/db');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 
 
@@ -35,7 +36,8 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', require('./routes/auth.routes'));
 
 
-
+app.use('/api/quiz', require('./routes/quiz.routes'));
+app.use('/api/notifications', notificationRoutes);
 
 
 // Start Server
