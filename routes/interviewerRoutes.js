@@ -1,6 +1,13 @@
 const express = require("express");
 const { protect } = require("../middlewares/authMiddleware");
-const { createInterviewer, getAllInterviewers, getInterviewerById, updateInterviewer, deleteInterviewer } = require("../controllers/interViewerController");
+const {
+  createInterviewer,
+  getAllInterviewers,
+  getInterviewerById,
+  updateInterviewer,
+  deleteInterviewer
+} = require("../controllers/interviewer.controller");
+
 const { isAdmin } = require("../middlewares/adminMiddleware");
 const router = express.Router();
 
