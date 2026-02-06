@@ -1,18 +1,20 @@
 const express = require("express");
 const { protect } = require("../middlewares/authMiddleware");
 const { createInterviewer, getAllInterviewers, getInterviewerById, updateInterviewer, deleteInterviewer } = require("../controllers/interViewerController");
-const { isAdmin } = require("../middlewares/adminMiddleware");
+const { adminOnly } = require("../middlewares/adminOnly");
+const { adminMiddleware } = require("../middlewares/adminMiddleware");
+
 const router = express.Router();
 
 
-router.post("/create", protect, createInterviewer, isAdmin);
+router.post("/create", adminMiddleware,createInterviewer,adminOnly);
 
-router.get("/", protect, getAllInterviewers, isAdmin);
+router.get("/", adminMiddleware, getAllInterviewers,adminOnly );
 
-router.get("/:id", protect, isAdmin, getInterviewerById);
+router.get("/:id", adminMiddleware,adminOnly, getInterviewerById);
 
-router.put("/:id", protect, isAdmin, updateInterviewer);
+router.put("/:id", adminMiddleware, adminOnly, updateInterviewer);
 
-router.delete("/:id", protect, isAdmin, deleteInterviewer);
+router.delete("/:id", adminMiddleware, adminOnly, deleteInterviewer);
 
 module.exports = router;
