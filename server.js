@@ -12,6 +12,7 @@ const callRequestRoutes = require("./routes/callRequestRoutes");
 const dateRequestRoutes = require("./routes/dateRequestRoutes");
 const likeRoutes = require("./routes/likeRoutes");
 const interviewerRoutes = require("./routes/interviewerRoutes");
+const callRoutes = require("./routes/call.routes");
 
 // Initialize app`
 const app = express();
@@ -45,6 +46,7 @@ app.use("/api/callRequest", callRequestRoutes);
 app.use("/api/dateRequest", dateRequestRoutes);
 app.use("/api/like", likeRoutes);
 app.use("/api/interviewer", interviewerRoutes)
+app.use('/api/call', callRoutes);
 
 
 
