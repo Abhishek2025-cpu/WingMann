@@ -1,6 +1,6 @@
 const Interviewer = require("../models/Interviewer");
 const bcrypt = require("bcryptjs");
-const {generateCredentials} = require("../utils/generateCredentials");
+const {generateCredentials} = require("../utils/generateCredentials"); //new  
 
 exports.createInterviewer = async (req, res) => {
   try {
