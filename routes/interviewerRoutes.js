@@ -1,6 +1,5 @@
 const express = require("express");
-const { protect } = require("../middlewares/authMiddleware");
-const { createInterviewer, getAllInterviewers, getInterviewerById, updateInterviewer, deleteInterviewer, loginInterviewer } = require("../controllers/interViewerController");
+// const { protect } = require("../middlewares/authMiddleware");
 const { adminOnly } = require("../middlewares/adminOnly");
 const { adminMiddleware } = require("../middlewares/adminMiddleware");
 
@@ -9,7 +8,7 @@ const {
   getAllInterviewers,
   getInterviewerById,
   updateInterviewer,
-  deleteInterviewer
+  deleteInterviewer, loginInterviewer
 } = require("../controllers/interviewer.controller");
 
 const { isAdmin } = require("../middlewares/adminMiddleware");
