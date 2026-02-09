@@ -1,7 +1,7 @@
 const Interviewer = require("../models/Interviewer");
 const bcrypt = require("bcryptjs");
 const generateEmailAndPassword = require("../utils/generateCredentials");
-
+const jwt = require("jsonwebtoken")
 exports.createInterviewer = async (req, res) => {
   try {
     const {
@@ -189,6 +189,175 @@ exports.deleteInterviewer = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Interviewer deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ✅ INTERVIEWER LOGIN
+// exports.loginInterviewer = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     // validation
+//     if (!email || !password) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "email and password are required",
+//       });
+//     }
+
+//     // find interviewer
+//     const interviewer = await Interviewer.findOne({ email });
+
+//     if (!interviewer) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Interviewer not found",
+//       });
+//     }
+
+//     // check active status
+//     if (!interviewer.isActive) {
+//       return res.status(403).json({
+//         success: false,
+//         message: "Your account is inactive. Please contact admin.",
+//       });
+//     }
+
+//     // compare password
+//     const isMatch = await bcrypt.compare(password, interviewer.password);
+
+//     if (!isMatch) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Invalid credentials",
+//       });
+//     }
+
+//     // generate token
+//     const token = jwt.sign(
+//       { id: interviewer._id, role: "interviewer" },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "7d" }
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Login successful",
+//       token,
+//       data: {
+//         interviewer: {
+//           _id: interviewer._id,
+//           name: interviewer.name,
+//           email: interviewer.email,
+//           mobileNumber: interviewer.mobileNumber,
+//           city: interviewer.city,
+//           state: interviewer.state,
+//           country: interviewer.country,
+//           designation: interviewer.designation,
+//           skills: interviewer.skills,
+//           profilePhoto: interviewer.profilePhoto,
+//           isActive: interviewer.isActive,
+//           createdAt: interviewer.createdAt,
+//         },
+//       },
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+// ✅ INTERVIEWER LOGIN
+exports.loginInterviewer = async (req, res) => {
+  try {
+    let { email, password } = req.body;
+
+    // ✅ validation
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "email and password are required",
+      });
+    }
+
+    // ✅ clean email + password
+    email = email.trim().toLowerCase();
+    password = String(password).trim();
+
+    // ✅ find interviewer by email
+    const interviewer = await Interviewer.findOne({ email });
+
+    if (!interviewer) {
+      return res.status(404).json({
+        success: false,
+        message: "Interviewer not found with this email",
+      });
+    }
+
+    // ✅ active check
+    if (!interviewer.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Your account is inactive. Please contact admin.",
+      });
+    }
+
+    // ✅ password match
+    const isMatch = await bcrypt.compare(password, interviewer.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
+
+    // ✅ JWT token
+    const token = jwt.sign(
+      {
+        id: interviewer._id,
+        role: "interviewer",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // ✅ response
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      data: {
+        interviewer: {
+          _id: interviewer._id,
+          name: interviewer.name,
+          email: interviewer.email,
+          mobileNumber: interviewer.mobileNumber,
+          city: interviewer.city,
+          state: interviewer.state,
+          country: interviewer.country,
+          address: interviewer.address,
+          pincode: interviewer.pincode,
+          gender: interviewer.gender,
+          dob: interviewer.dob,
+          designation: interviewer.designation,
+          experience: interviewer.experience,
+          skills: interviewer.skills,
+          profilePhoto: interviewer.profilePhoto,
+          resume: interviewer.resume,
+          isActive: interviewer.isActive,
+          createdBy: interviewer.createdBy,
+          createdAt: interviewer.createdAt,
+        },
+      },
     });
   } catch (error) {
     return res.status(500).json({
