@@ -2,6 +2,8 @@ const Interviewer = require("../models/Interviewer");
 const bcrypt = require("bcryptjs");
 const generateEmailAndPassword = require("../utils/generateCredentials");
 const jwt = require("jsonwebtoken")
+const {generateCredentials} = require("../utils/generateCredentials"); //new  
+
 exports.createInterviewer = async (req, res) => {
   try {
     const {

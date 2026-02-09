@@ -44,4 +44,30 @@ const getRequestsForReceiver = async (req, res) => {
   }
 };
 
+
+// SEND SIGNAL
+exports.sendSignal = async (req, res) => {
+  const { type, payload } = req.body;
+
+  await CallSignal.create({
+    callId: req.params.callId,
+    senderId: req.user.id,
+    type,
+    payload
+  });
+
+  res.json({ success: true });
+};
+
+
+// GET SIGNALS
+exports.getSignals = async (req, res) => {
+  const signals = await CallSignal.find({
+    callId: req.params.callId
+  }).sort({ createdAt: 1 });
+
+  res.json({ success: true, signals });
+};
+
+
 module.exports = { createCallRequest, getRequestsForReceiver };

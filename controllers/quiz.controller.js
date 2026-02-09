@@ -49,3 +49,4 @@ exports.getQuizById = async (req, res) => {
         res.status(500).json({ success: false, error: "Invalid ID or Server Error" });
     }
 };
+

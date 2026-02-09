@@ -4,6 +4,15 @@ const { createInterviewer, getAllInterviewers, getInterviewerById, updateIntervi
 const { adminOnly } = require("../middlewares/adminOnly");
 const { adminMiddleware } = require("../middlewares/adminMiddleware");
 
+const {
+  createInterviewer,
+  getAllInterviewers,
+  getInterviewerById,
+  updateInterviewer,
+  deleteInterviewer
+} = require("../controllers/interviewer.controller");
+
+const { isAdmin } = require("../middlewares/adminMiddleware");
 const router = express.Router();
 
 

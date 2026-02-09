@@ -14,6 +14,8 @@ const likeRoutes = require("./routes/likeRoutes");
 const interviewerRoutes = require("./routes/interviewerRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const interviewerAvailibilityRoutes = require("./routes/interviewerAvailibiltyRoutes");
+const callRoutes = require("./routes/call.routes");
+
 // Initialize app`
 const app = express();
 
@@ -48,6 +50,9 @@ app.use("/api/like", likeRoutes);
 app.use("/api/interviewer", interviewerRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/interviewer-availability", interviewerAvailibilityRoutes)
+app.use('/api/call', callRoutes);
+
+
 
 
 app.use('/api/quiz', require('./routes/quiz.routes'));
