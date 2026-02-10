@@ -1,5 +1,5 @@
 const express = require("express");
-const { setAvailabilityForDate, getAvailabilityByInterviewer, getAvailabilityByDate, getTimeSlotsByDate, updateAvailability, deleteAvailability } = require("../controllers/interViewerAvailabilityController");
+const { setAvailabilityForDate, getAvailabilityByInterviewer,   updateAvailability, deleteAvailability, saveAvailability30MinSlots } = require("../controllers/interViewerAvailabilityController");
 const { protect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
@@ -8,10 +8,7 @@ router.post("/set-date", setAvailabilityForDate, protect);
 
 router.get("/:interviewerId", getAvailabilityByInterviewer, protect);
 
-router.get("/:interviewerId/by-date", getAvailabilityByDate, protect);
-
-router.get("/:interviewerId/time-slots", getTimeSlotsByDate, protect);
-
+router.post("/save-30min-slots", protect, saveAvailability30MinSlots)
 router.put("/update/:availabilityId", updateAvailability, protect);
 
 router.delete("/delete/:availabilityId", deleteAvailability, protect);
