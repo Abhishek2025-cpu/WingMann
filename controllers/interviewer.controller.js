@@ -19,7 +19,6 @@ exports.createInterviewer = async (req, res) => {
       designation,
       experience,
       skills,
-      profilePhoto,
       resume,
       isActive,
     } = req.body;
@@ -30,6 +29,15 @@ exports.createInterviewer = async (req, res) => {
         success: false,
         message: "name and mobileNumber are required",
       });
+    }
+
+    // -----------------------
+    // HANDLE CLOUDINARY FILES
+    // -----------------------
+    // Check if files were uploaded
+    let profilePhotos = [];
+    if (req.files && req.files.length > 0) {
+      profilePhotos = req.files.map((file) => file.path); // Cloudinary URLs
     }
 
     // auto generate email + password
@@ -63,8 +71,8 @@ exports.createInterviewer = async (req, res) => {
       dob,
       designation,
       experience,
-      skills,
-      profilePhoto,
+      skills: skills ? skills.split(",") : [], // optional comma-separated
+      profilePhotos, // <-- added Cloudinary URLs
       resume,
       isActive,
       createdBy: req.user.id, // from JWT
@@ -88,7 +96,6 @@ exports.createInterviewer = async (req, res) => {
     });
   }
 };
-
 
 exports.getAllInterviewers = async (req, res) => {
   try {
@@ -147,7 +154,7 @@ exports.updateInterviewer = async (req, res) => {
       });
     }
 
-    // security: email/password update allowed nahi (optional)
+    // security: email/password update allowed nahi
     if (req.body.email || req.body.password) {
       return res.status(400).json({
         success: false,
@@ -155,9 +162,23 @@ exports.updateInterviewer = async (req, res) => {
       });
     }
 
+    // copy body data (so we can safely modify it)
+    const updateData = { ...req.body };
+
+    // ✅ If new profile photos uploaded, save cloudinary URLs
+    if (req.files && req.files.length > 0) {
+      const uploadedPhotos = req.files.map((file) => file.path); // Cloudinary URL
+      updateData.profilePhotos = uploadedPhotos; // overwrite existing photos
+    }
+
+    // Optional: skills handle (if you send as comma-separated string)
+    if (updateData.skills && typeof updateData.skills === "string") {
+      updateData.skills = updateData.skills.split(",").map((s) => s.trim());
+    }
+
     const updated = await Interviewer.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: updateData },
       { new: true }
     ).select("-password");
 
@@ -173,6 +194,7 @@ exports.updateInterviewer = async (req, res) => {
     });
   }
 };
+
 
 // ✅ DELETE INTERVIEWER (Admin Only)
 exports.deleteInterviewer = async (req, res) => {

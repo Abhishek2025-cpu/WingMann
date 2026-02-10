@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const {upload} = require("../config/cloudinary");
+// Config file se 'upload' import karein (jo abhi humne fix kiya tha)
+const { upload } = require("../config/cloudinary");
 
 const {
   createUserData,
@@ -11,21 +12,26 @@ const {
   deleteUserData,
   uploadImages
 } = require("../controllers/userDatacontroller");
+
 const { protect } = require("../middlewares/authMiddleware");
 
+// ================= ROUTES =================
 
-// images field name = "images"
-router.post("/create", upload.array("images", 10), createUserData, protect);
-router.post(
-  "/upload-images", 
-  upload.array("images", 6), 
-  uploadImages, protect
-);
-router.get("/get", getAllUserData, protect);
-router.get("/:id", getSingleUserData, protect);
+// 1. CREATE: User create karte waqt agar images bhi bhejni hain
+// Note: Frontend se form-data key "images" honi chahiye
+router.post("/create", upload.array("images", 6), createUserData);
 
-router.patch("/update/:id", updateUserData)
+// 2. UPLOAD ONLY: Sirf images upload karne ke liye (Existing users ke liye)
+router.post("/upload-images", protect, upload.array("images", 6), uploadImages);
 
-router.delete("/:id", deleteUserData, protect);
+// 3. GET DATA
+router.get("/get", protect, getAllUserData);
+router.get("/:id", protect, getSingleUserData);
+
+// 4. UPDATE: Agar update karte waqt images bhi change karni hain
+router.patch("/update/:id", protect, upload.array("images", 6), updateUserData);
+
+// 5. DELETE
+router.delete("/:id", protect, deleteUserData);
 
 module.exports = router;

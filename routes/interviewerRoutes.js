@@ -1,30 +1,41 @@
+
+
 const express = require("express");
-// const { protect } = require("../middlewares/authMiddleware");
-const { adminOnly } = require("../middlewares/adminOnly");
-const { adminMiddleware } = require("../middlewares/adminMiddleware");
-
-const {
-  createInterviewer,
-  getAllInterviewers,
-  getInterviewerById,
-  updateInterviewer,
-  deleteInterviewer, loginInterviewer
-} = require("../controllers/interviewer.controller");
-
-const { isAdmin } = require("../middlewares/adminMiddleware");
 const router = express.Router();
 
+const { createInterviewer, getAllInterviewers, getInterviewerById, updateInterviewer, deleteInterviewer, loginInterviewer } = require("../controllers/interviewer.controller");
+const { adminMiddleware } = require("../middlewares/adminMiddleware");
+const { adminOnly } = require("../middlewares/adminOnly");
+const { upload } = require("../config/cloudinary"); // your cloudinary + multer config
 
-router.post("/create", adminMiddleware,createInterviewer,adminOnly);
+// ------------------- Routes -------------------
 
-router.post("/login", adminMiddleware, loginInterviewer );
+// Create interviewer with optional profile photo upload
+router.post(
+  "/create-interviewer",
+  adminMiddleware,
+  upload.array("profilePhotos", 5), // existing flow stays intact
+  createInterviewer
+);
+// Login interviewer
+router.post("/login", adminMiddleware, loginInterviewer);
 
-router.get("/", adminMiddleware, getAllInterviewers,adminOnly );
+// Get all interviewers
+router.get("/", adminMiddleware, adminOnly, getAllInterviewers);
 
-router.get("/:id", adminMiddleware,adminOnly, getInterviewerById);
+// Get single interviewer by ID
+router.get("/:id", adminMiddleware, adminOnly, getInterviewerById);
 
-router.put("/:id", adminMiddleware, adminOnly, updateInterviewer);
+// Update interviewer with optional new profile photo
+router.put(
+  "/:id",
+  adminMiddleware,
+  upload.single("profilePhoto"), // optional new file
+  adminOnly,
+  updateInterviewer
+);
 
+// Delete interviewer
 router.delete("/:id", adminMiddleware, adminOnly, deleteInterviewer);
 
 module.exports = router;
