@@ -6,5 +6,5 @@ const { protect } = require('../middleware/auth.middleware');
 router.post('/submit', protect, submitQuiz);
 router.get('/my-quizzes', protect, getUserQuizzes);
 router.get('/:id', protect, getQuizById);
-
+ 
 module.exports = router;
