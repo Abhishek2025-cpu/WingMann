@@ -14,15 +14,15 @@ const likeSchema = new mongoose.Schema(
       required: true,
     },
 
+    // ✅ Like / Dislike (no default)
     isLike: {
       type: Boolean,
-      default: true,
+      default: null,
     },
   },
   { timestamps: true }
 );
 
-// ✅ Prevent duplicate like for same sender -> same user
 likeSchema.index({ senderId: 1, userId: 1 }, { unique: true });
 
 module.exports = mongoose.model("Like", likeSchema);

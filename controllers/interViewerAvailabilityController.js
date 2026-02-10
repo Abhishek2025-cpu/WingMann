@@ -72,7 +72,33 @@ exports.getAvailabilityByInterviewer = async (req, res) => {
   }
 };
 
+exports.getAllInterviewersAvailability = async (req, res) => {
+  try {
+    const { date } = req.query; // optional
 
+    let filter = {};
+
+    // agar date aayi to date filter lagao
+    if (date) {
+      filter.date = String(date).trim(); // "YYYY-MM-DD"
+    }
+
+    const data = await InterviewerAvailability.find(filter)
+      .populate("interviewerId", "name email") // interviewer details (optional)
+      .sort({ date: 1 });
+
+    return res.status(200).json({
+      success: true,
+      total: data.length,
+      data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 
 // ✅ 5) UPDATE DATE + TIMESLOTS by availabilityId

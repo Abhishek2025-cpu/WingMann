@@ -18,18 +18,23 @@ exports.likeUnlikeUser = async (req, res) => {
       });
     }
 
-    // if isLike not provided, default true
-    const finalIsLike = typeof isLike === "boolean" ? isLike : true;
+    // ✅ Since now default is null, isLike must be provided
+    if (typeof isLike !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "isLike must be true (like) or false (dislike)",
+      });
+    }
 
-    // ✅ find existing like record
+    // ✅ find existing record
     const existing = await Like.findOne({ senderId, userId });
 
     // -----------------------------
     // CASE 1: Like = true
     // -----------------------------
-    if (finalIsLike === true) {
+    if (isLike === true) {
       if (existing) {
-        existing.isLike = true;
+        existing.isLike = true; // ✅ Like ON, Dislike OFF automatically
         await existing.save();
 
         return res.status(200).json({
@@ -53,41 +58,48 @@ exports.likeUnlikeUser = async (req, res) => {
     }
 
     // -----------------------------
-    // CASE 2: Like = false (Unlike)
+    // CASE 2: Dislike = false
     // -----------------------------
     if (!existing) {
-      return res.status(404).json({
-        success: false,
-        message: "Like record not found",
+      // ✅ if no record exists, create dislike record
+      const newDislike = await Like.create({
+        senderId,
+        userId,
+        isLike: false,
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "User disliked successfully",
+        data: newDislike,
       });
     }
 
-    existing.isLike = false;
+    existing.isLike = false; // ✅ Dislike ON, Like OFF automatically
     await existing.save();
 
     return res.status(200).json({
       success: true,
-      message: "User unliked successfully",
+      message: "User disliked successfully",
       data: existing,
     });
   } catch (error) {
     console.log(error, error.message);
-    // duplicate key case
+
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
-        message: "You already liked this user",
+        message: "You already reacted to this user",
       });
     }
 
     res.status(500).json({
-
-        
       success: false,
       message: error.message,
     });
   }
 };
+
 
 
 exports.getLikesForUser = async (req, res) => {

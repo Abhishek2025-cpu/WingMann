@@ -3,7 +3,7 @@ const { likeUnlikeUser, getLikesForUser, getMyLikedUsers } = require("../control
 const { protect } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
-router.post("/toggle", likeUnlikeUser, protect);
+router.post("/toggle", protect, likeUnlikeUser);
 
 router.get("/recieved/:userId", getLikesForUser, protect);
 

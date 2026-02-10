@@ -1,10 +1,24 @@
 const UserData = require("../models/UserData");
 const jwt = require("jsonwebtoken");
 
+
 exports.createUserData = async (req, res) => {
   try {
-    const newUser = await UserData.create(req.body);
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+    // ✅ uploaded images URLs from cloudinary
+    const images = req.files ? req.files.map((file) => file.path) : [];
+
+    // ✅ create user with images saved in DB
+    const newUser = await UserData.create({
+      ...req.body,
+      images: images, // store in mongodb
+    });
+
+    // ✅ generate token
+    const token = jwt.sign(
+      { id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
 
     res.status(201).json({
       success: true,
@@ -13,7 +27,11 @@ exports.createUserData = async (req, res) => {
       userData: newUser,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
