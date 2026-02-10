@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.post("/set-date", setAvailabilityForDate, protect);
 router.get("/all", protect, getAllInterviewersAvailability);
-router.get("/:interviewerId", getAvailabilityByInterviewer, protect);
+router.get("/:interviewerId",protect, getAvailabilityByInterviewer);
 
-router.post("/save-30min-slots", protect, saveAvailability30MinSlots)
+router.post("/save-30min-slots", protect, saveAvailability30MinSlots);
 router.put("/update/:availabilityId", updateAvailability, protect);
 
 router.delete("/delete/:availabilityId", deleteAvailability, protect);

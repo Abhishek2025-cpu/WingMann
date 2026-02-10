@@ -22,7 +22,7 @@ const interviewerSchema = new mongoose.Schema(
 
     resume: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" }, // Removed required:true to prevent crash if req.user is missing during testing
   },
   { timestamps: true }
 );

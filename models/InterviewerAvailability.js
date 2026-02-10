@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const timeSlotSchema = new mongoose.Schema(
   {
-    startTime: { type: String, required: true }, // "10:00"
-    endTime: { type: String, required: true },   // "11:00"
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
     isBooked: { type: Boolean, default: false },
   },
   { _id: false }
@@ -17,11 +17,17 @@ const interviewerAvailabilitySchema = new mongoose.Schema(
       required: true,
     },
 
-    // ✅ calendar date store as string (timezone bug free)
+    // ✅ NEW FIELD
+     userDataId: { // ✅ ADD THIS
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "UserData",
+    required: true,
+  },
+
     date: {
       type: String,
       required: true,
-      trim: true, // "2026-02-10"
+      trim: true,
     },
 
     timeSlots: {
@@ -32,9 +38,9 @@ const interviewerAvailabilitySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ one interviewer can set availability only once per date
+// ✅ unique: one interviewer + userData + date
 interviewerAvailabilitySchema.index(
-  { interviewerId: 1, date: 1 },
+  { interviewerId: 1, userDataId: 1, date: 1 },
   { unique: true }
 );
 

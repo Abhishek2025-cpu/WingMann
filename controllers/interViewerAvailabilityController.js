@@ -1,6 +1,6 @@
 const InterviewerAvailability = require("../models/InterviewerAvailability");
 const Interviewer = require("../models/Interviewer");
-
+const UserData = require("../models/UserData");
 // ✅ 1) SET AVAILABILITY (Create/Update for same date)
 exports.setAvailabilityForDate = async (req, res) => {
   try {
@@ -181,21 +181,20 @@ exports.deleteAvailability = async (req, res) => {
     });
   }
 };
+//30 minutes time slots
 
-
+// helpers
 const timeToMinutes = (time) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
 };
 
-// helper: minutes -> "HH:MM"
 const minutesToTime = (mins) => {
   const h = String(Math.floor(mins / 60)).padStart(2, "0");
   const m = String(mins % 60).padStart(2, "0");
   return `${h}:${m}`;
 };
 
-// helper: split into 30 mins
 const splitInto30MinSlots = (startTime, endTime) => {
   const start = timeToMinutes(startTime);
   const end = timeToMinutes(endTime);
@@ -218,7 +217,6 @@ const splitInto30MinSlots = (startTime, endTime) => {
   return slots;
 };
 
-// helper: remove duplicates
 const uniqueSlots = (slots) => {
   const map = new Map();
   for (let s of slots) {
@@ -228,15 +226,15 @@ const uniqueSlots = (slots) => {
   return Array.from(map.values());
 };
 
-// ✅ NEW API: Save availability in 30-min slots
 exports.saveAvailability30MinSlots = async (req, res) => {
   try {
-    const { interviewerId, date, timeSlots } = req.body;
+    const { interviewerId, userDataId, date, timeSlots } = req.body;
 
-    if (!interviewerId || !date) {
+    // validation
+    if (!interviewerId || !userDataId || !date) {
       return res.status(400).json({
         success: false,
-        message: "interviewerId and date are required",
+        message: "interviewerId, userDataId and date are required",
       });
     }
 
@@ -247,7 +245,7 @@ exports.saveAvailability30MinSlots = async (req, res) => {
       });
     }
 
-    // interviewer exists check
+    // check interviewer
     const interviewer = await Interviewer.findById(interviewerId);
     if (!interviewer) {
       return res.status(404).json({
@@ -256,16 +254,22 @@ exports.saveAvailability30MinSlots = async (req, res) => {
       });
     }
 
+    // check userData
+    const userData = await UserData.findById(userDataId);
+    if (!userData) {
+      return res.status(404).json({
+        success: false,
+        message: "UserData not found",
+      });
+    }
+
     const selectedDate = String(date).trim();
 
-    // 1) Split all slots into 30 mins
+    // generate 30-min slots
     let generatedSlots = [];
-
     for (let slot of timeSlots) {
       if (!slot.startTime || !slot.endTime) continue;
-
-      const chunks = splitInto30MinSlots(slot.startTime, slot.endTime);
-      generatedSlots = [...generatedSlots, ...chunks];
+      generatedSlots = [...generatedSlots, ...splitInto30MinSlots(slot.startTime, slot.endTime)];
     }
 
     generatedSlots = uniqueSlots(generatedSlots);
@@ -273,18 +277,28 @@ exports.saveAvailability30MinSlots = async (req, res) => {
     if (generatedSlots.length === 0) {
       return res.status(400).json({
         success: false,
-        message:
-          "No valid 30-min slots generated. Please check startTime/endTime.",
+        message: "No valid 30-min slots generated. Check startTime/endTime.",
       });
     }
 
-    // 2) Save in DB (upsert)
-    const saved = await InterviewerAvailability.findOneAndUpdate(
-      { interviewerId, date: selectedDate },
-      { $set: { timeSlots: generatedSlots } },
-      { new: true, upsert: true }
-    );
+    // ✅ Save in DB with userDataId
+    let saved = await InterviewerAvailability.findOne({ interviewerId, userDataId, date: selectedDate });
 
+    if (saved) {
+      // update existing
+      saved.timeSlots = generatedSlots;
+      await saved.save();
+    } else {
+      // create new
+      saved = await InterviewerAvailability.create({
+        interviewerId,
+        userDataId,
+        date: selectedDate,
+        timeSlots: generatedSlots,
+      });
+    }
+
+    // ✅ response will include userDataId
     return res.status(200).json({
       success: true,
       message: "Availability saved successfully in 30-min slots",

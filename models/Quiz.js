@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const quizSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Ya 'UserData', jo bhi tumhare main user model ka naam hai
+        ref: 'User',
         required: true
     },
     quizName: {
@@ -28,5 +28,5 @@ const quizSchema = new mongoose.Schema({
         default: Date.now
     }
 }, { timestamps: true });
-
+ 
 module.exports = mongoose.model('Quiz', quizSchema);
