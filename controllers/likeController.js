@@ -127,16 +127,26 @@ exports.getMyLikedUsers = async (req, res) => {
   try {
     const senderId = req.params.senderId;
 
-    const likedUsers = await Like.find({ senderId, isLike: true })
-      .populate("userId", "name gender images")
-      .sort({ createdAt: -1 });
+    // ✅ Find likes where sender liked someone, ignore null userIds
+    const likedUsers = await Like.find({
+      senderId,
+      isLike: true,
+      userId: { $ne: null }, // filter out nulls
+    })
+      .populate("userId", "name gender images") // populate only required fields
+      .sort({ createdAt: -1 })
+      .lean(); // optional: returns plain JS objects
+
+    // Optional: remove any entries where populate failed (user was deleted)
+    const filteredUsers = likedUsers.filter(like => like.userId);
 
     res.status(200).json({
       success: true,
-      total: likedUsers.length,
-      data: likedUsers,
+      total: filteredUsers.length,
+      data: filteredUsers,
     });
   } catch (error) {
+    console.error("Error fetching liked users:", error.message);
     res.status(500).json({
       success: false,
       message: error.message,

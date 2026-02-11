@@ -4,7 +4,7 @@ const userDataSchema = new mongoose.Schema(
   {
     gender: { type: String, enum: ["male", "female", "other", ""], default: "" },
     name: { type: String, trim: true, default: "" },
-    dob: { type: Date, default: null },
+    dob: { type: String, default: null },
     height: { type: Number, default: null },
 
     location: {
@@ -14,7 +14,7 @@ const userDataSchema = new mongoose.Schema(
         lng: { type: Number, default: null },
       },
     },
-
+ 
     state: { type: String, default: "" },
     story: { type: String, default: "" },
     type: { type: String, default: "" },

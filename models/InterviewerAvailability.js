@@ -20,8 +20,7 @@ const interviewerAvailabilitySchema = new mongoose.Schema(
     // ✅ NEW FIELD
      userDataId: { // ✅ ADD THIS
     type: mongoose.Schema.Types.ObjectId,
-    ref: "UserData",
-    required: true,
+    ref: "UserData"
   },
 
     date: {

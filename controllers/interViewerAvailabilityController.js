@@ -1,6 +1,7 @@
 const InterviewerAvailability = require("../models/InterviewerAvailability");
 const Interviewer = require("../models/Interviewer");
 const UserData = require("../models/UserData");
+const mongoose = require("mongoose")
 // ✅ 1) SET AVAILABILITY (Create/Update for same date)
 exports.setAvailabilityForDate = async (req, res) => {
   try {
@@ -107,6 +108,14 @@ exports.updateAvailability = async (req, res) => {
     const { availabilityId } = req.params;
     const { date, timeSlots } = req.body;
 
+    // ✅ ObjectId validation
+    if (!mongoose.Types.ObjectId.isValid(availabilityId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid availabilityId",
+      });
+    }
+
     const availability = await InterviewerAvailability.findById(availabilityId);
 
     if (!availability) {
@@ -116,12 +125,13 @@ exports.updateAvailability = async (req, res) => {
       });
     }
 
-    // ✅ If date updating, check duplicate date for same interviewer
+    // ✅ Date duplicate check (must include userDataId too)
     if (date) {
       const newDate = String(date).trim();
 
       const alreadyExists = await InterviewerAvailability.findOne({
         interviewerId: availability.interviewerId,
+        userDataId: availability.userDataId, // ✅ IMPORTANT
         date: newDate,
         _id: { $ne: availabilityId },
       });
