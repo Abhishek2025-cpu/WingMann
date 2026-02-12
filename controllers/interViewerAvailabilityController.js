@@ -159,12 +159,73 @@ exports.getAllInterviewersAvailability = async (req, res) => {
 
 
 // ✅ 5) UPDATE DATE + TIMESLOTS by availabilityId
+// exports.updateAvailability = async (req, res) => {
+//   try {
+//     const { availabilityId } = req.params;
+//     const { date, timeSlots } = req.body;
+
+//     // ✅ ObjectId validation
+//     if (!mongoose.Types.ObjectId.isValid(availabilityId)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid availabilityId",
+//       });
+//     }
+
+//     const availability = await InterviewerAvailability.findById(availabilityId);
+
+//     if (!availability) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Availability not found",
+//       });
+//     }
+
+//     // ✅ Date duplicate check (must include userDataId too)
+//     if (date) {
+//       const newDate = String(date).trim();
+
+//       const alreadyExists = await InterviewerAvailability.findOne({
+//         interviewerId: availability.interviewerId,
+//         userDataId: availability.userDataId, // ✅ IMPORTANT
+//         date: newDate,
+//         _id: { $ne: availabilityId },
+//       });
+
+//       if (alreadyExists) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Availability already exists for this date",
+//         });
+//       }
+
+//       availability.date = newDate;
+//     }
+
+//     // update timeSlots
+//     if (timeSlots && Array.isArray(timeSlots)) {
+//       availability.timeSlots = timeSlots;
+//     }
+
+//     await availability.save();
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Availability updated successfully",
+//       data: availability,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 exports.updateAvailability = async (req, res) => {
   try {
     const { availabilityId } = req.params;
     const { date, timeSlots } = req.body;
 
-    // ✅ ObjectId validation
     if (!mongoose.Types.ObjectId.isValid(availabilityId)) {
       return res.status(400).json({
         success: false,
@@ -181,13 +242,12 @@ exports.updateAvailability = async (req, res) => {
       });
     }
 
-    // ✅ Date duplicate check (must include userDataId too)
+    // ✅ Date duplicate check (only interviewerId + date)
     if (date) {
       const newDate = String(date).trim();
 
       const alreadyExists = await InterviewerAvailability.findOne({
         interviewerId: availability.interviewerId,
-        userDataId: availability.userDataId, // ✅ IMPORTANT
         date: newDate,
         _id: { $ne: availabilityId },
       });
