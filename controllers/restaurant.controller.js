@@ -3,54 +3,74 @@ const fs = require('fs');
 
 // Add new restorent 
 exports.addRestaurant = async (req, res) => {
-    try {
-        const { 
-            venueType, businessName, email, streetAddress, cityState, 
-            pincode, googleMapsLink, typeOfFood, budgetPerPerson 
-        } = req.body;
+  try {
+    const {
+      venueType,
+      businessName,
+      email,
+      streetAddress,
+      cityState,
+      pincode,
+      googleMapsLink,
+      typeOfFood,
+      budgetPerPerson,
+    } = req.body;
 
-        // 1. Photo Check
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: "Venue photo is required!" });
-        }
-
-        // 2. Email Presence & Validation
-        if (!email) {
-            return res.status(400).json({ success: false, message: "Email field is required in form-data!" });
-        }
-
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ success: false, message: "Invalid restaurant email format!" });
-        }
-
-        // 3. Create Restaurant
-        const newRestaurant = await Restaurant.create({
-            venuePhoto: req.file.path,
-            venueType,
-            businessName,
-            email, 
-            streetAddress,
-            cityState,
-            pincode,
-            googleMapsLink,
-            typeOfFood,
-            budgetPerPerson,
-            addedBy: req.user.id
-        });
-
-        res.status(201).json({
-            success: true,
-            message: "Restaurant added successfully!",
-            data: newRestaurant
-        });
-
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({ success: false, message: "This email is already registered to another restaurant!" });
-        }
-        res.status(500).json({ success: false, message: error.message });
+    // ✅ Multiple Photos Check
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Venue photos are required!",
+      });
     }
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email field is required in form-data!",
+      });
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid restaurant email format!",
+      });
+    }
+
+    // ✅ Cloudinary image URLs
+    const photoUrls = req.files.map((file) => file.path);
+
+    const newRestaurant = await Restaurant.create({
+      venuePhotos: photoUrls,
+      venueType,
+      businessName,
+      email,
+      streetAddress,
+      cityState,
+      pincode,
+      googleMapsLink,
+      typeOfFood,
+      budgetPerPerson,
+      addedBy: req.admin._id, // ✅ admin id
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Restaurant added successfully!",
+      data: newRestaurant,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "This email is already registered to another restaurant!",
+      });
+    }
+
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 // Get all restorent

@@ -1,12 +1,25 @@
-const express = require('express');
+const express = require("express");
+const { adminMiddleware } = require("../middlewares/adminMiddleware");
+const { addRestaurant, getAllRestaurants, updateRestaurant, deleteRestaurant } = require("../controllers/restaurant.controller");
+const { upload } = require("../config/cloudinary");
 const router = express.Router();
-const restaurantController = require('../controllers/restaurant.controller');
-const { protect, authorize } = require('../middlewares/auth.middleware');
-const upload = require('../middlewares/upload.middleware');
 
-router.post('/add', protect, authorize('admin'), upload.single('venuePhoto'), restaurantController.addRestaurant);
-router.get('/all', protect, authorize('admin'), restaurantController.getAllRestaurants);
-router.patch('/update/:id', protect, authorize('admin'), upload.single('venuePhoto'),
-restaurantController.updateRestaurant);
-router.delete('/delete/:id', protect, authorize('admin'), restaurantController.deleteRestaurant);
+router.post(
+  "/add",
+  adminMiddleware,
+  upload.array("venuePhotos", 10), // ✅ multiple images
+  addRestaurant
+);
+
+router.get("/all", adminMiddleware, getAllRestaurants);
+
+router.put(
+  "/update/:id",
+  adminMiddleware,
+  upload.array("venuePhotos", 10), // ✅ multiple images
+  updateRestaurant
+);
+
+router.delete("/delete/:id", adminMiddleware, deleteRestaurant);
+
 module.exports = router;
