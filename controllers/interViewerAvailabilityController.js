@@ -460,3 +460,75 @@ exports.saveAvailability30MinSlots = async (req, res) => {
     });
   }
 };
+
+exports.deleteAvailabilityByDate = async (req, res) => {
+  try {
+    const { interviewerId, date } = req.body;
+
+    if (!interviewerId || !date) {
+      return res.status(400).json({
+        success: false,
+        message: "interviewerId and date are required",
+      });
+    }
+
+    const deleted = await InterviewerAvailability.findOneAndDelete({
+      interviewerId,
+      date: String(date).trim(),
+    });
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "No availability found for this date",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Whole day availability deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.deleteSlotByDate = async (req, res) => {
+  try {
+    const { interviewerId, date, slotId } = req.body;
+
+    if (!interviewerId || !date || !slotId) {
+      return res.status(400).json({
+        success: false,
+        message: "interviewerId, date and slotId are required",
+      });
+    }
+
+    const updated = await InterviewerAvailability.findOneAndUpdate(
+      { interviewerId, date: String(date).trim() },
+      { $pull: { timeSlots: { _id: slotId } } },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Availability not found for this date",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Slot deleted successfully",
+      data: updated,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
