@@ -13,7 +13,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const interviewerAvailibilityRoutes = require("./routes/interviewerAvailibiltyRoutes");
 const callRoutes = require("./routes/call.routes");
 const restaurantRoutes = require("./routes/restaurant.routes");
-
+const feedbackRoutes = require("./routes/feedback.routes")
 // Initialize app`
 const app = express();
 
@@ -52,7 +52,8 @@ app.use("/api/interviewer", interviewerRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/interviewer-availability", interviewerAvailibilityRoutes)
 app.use('/api/call', callRoutes);
-app.use("/api/restaurants", restaurantRoutes)
+app.use("/api/restaurants", restaurantRoutes);
+app.use("/api/feedback",feedbackRoutes)
 
 
 
