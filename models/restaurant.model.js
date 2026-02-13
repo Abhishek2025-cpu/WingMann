@@ -27,7 +27,11 @@ const restaurantSchema = new mongoose.Schema(
     pincode: { type: String, required: true },
     googleMapsLink: { type: String },
 
-    typeOfFood: { type: String, required: true },
+  typeOfFood: {
+  type: [String], // ✅ multiple food types
+  required: true,
+  default: [],
+},
     budgetPerPerson: { type: Number, required: true },
 
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
