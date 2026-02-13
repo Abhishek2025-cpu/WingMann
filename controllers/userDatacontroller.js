@@ -36,12 +36,21 @@ const jwt = require("jsonwebtoken");
 // };
 exports.createUserData = async (req, res) => {
   try {
+    // ✅ Check if mobile exists
+    const { mobile } = req.body;
+    if (!mobile) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number is required",
+      });
+    }
+
     // ✅ uploaded images URLs from cloudinary
     const images = req.files ? req.files.map((file) => file.path) : [];
 
     // ✅ create user with images saved in DB
     const newUser = await UserData.create({
-      ...req.body, // make sure mobile is in req.body
+      ...req.body,
       images: images,
     });
 

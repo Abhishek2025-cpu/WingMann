@@ -20,14 +20,15 @@ const { protect } = require("../middlewares/authMiddleware");
 
 // 1. CREATE: User create karte waqt agar images bhi bhejni hain
 // Note: Frontend se form-data key "images" honi chahiye
-router.post("/create", upload.array("images", 6), createUserData);
+router.post("/create", createUserData);
 
 // 2. UPLOAD ONLY: Sirf images upload karne ke liye (Existing users ke liye)
 router.post("/upload-images", protect, upload.array("images", 6), uploadImages);
 
 // 3. GET DATA
-router.get("/get", protect, getAllUserData);
 router.get("/user-summary", protect, getUserSummary);
+router.get("/get", protect, getAllUserData);
+
 router.get("/:id", protect, getSingleUserData);
 
 

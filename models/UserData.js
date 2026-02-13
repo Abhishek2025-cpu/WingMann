@@ -95,10 +95,10 @@ const userDataSchema = new mongoose.Schema(
     },
 
     // images (max 6)
-    images: {
-      type: Array,
-      default: [],
-    },
+    // images: {
+    //   type: Array,
+    //   default: [],
+    // },
   },
   { timestamps: true }
 );
