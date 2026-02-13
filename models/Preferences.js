@@ -10,8 +10,8 @@ const preferenceSchema = new mongoose.Schema(
     },
    
     age: {
-      min: { type: Number, required: true, min: 18 },
-      max: { type: Number, required: true, max: 100 },
+      min: { type: Number, default: null},
+      max: { type: Number, default: null },
     },
     height: {
       min: { type: Number, required: true, min: 30 },
