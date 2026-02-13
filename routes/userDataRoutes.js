@@ -10,7 +10,8 @@ const {
   getSingleUserData,
   updateUserData,
   deleteUserData,
-  uploadImages
+  uploadImages,
+  getUserSummary
 } = require("../controllers/userDatacontroller");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -26,7 +27,9 @@ router.post("/upload-images", protect, upload.array("images", 6), uploadImages);
 
 // 3. GET DATA
 router.get("/get", protect, getAllUserData);
+router.get("/user-summary", protect, getUserSummary);
 router.get("/:id", protect, getSingleUserData);
+
 
 // 4. UPDATE: Agar update karte waqt images bhi change karni hain
 router.patch("/update/:id", protect, upload.array("images", 6), updateUserData);

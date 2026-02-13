@@ -2,6 +2,38 @@ const UserData = require("../models/UserData");
 const jwt = require("jsonwebtoken");
 
 
+// exports.createUserData = async (req, res) => {
+//   try {
+//     // ✅ uploaded images URLs from cloudinary
+//     const images = req.files ? req.files.map((file) => file.path) : [];
+
+//     // ✅ create user with images saved in DB
+//     const newUser = await UserData.create({
+//       ...req.body,
+//       images: images, // store in mongodb
+//     });
+
+//     // ✅ generate token
+//     const token = jwt.sign(
+//       { id: newUser._id },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "30d" }
+//     );
+
+//     res.status(201).json({
+//       success: true,
+//       message: "User created successfully",
+//       token,
+//       userData: newUser,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//       error: error.message,
+//     });
+//   }
+// };
 exports.createUserData = async (req, res) => {
   try {
     // ✅ uploaded images URLs from cloudinary
@@ -9,8 +41,8 @@ exports.createUserData = async (req, res) => {
 
     // ✅ create user with images saved in DB
     const newUser = await UserData.create({
-      ...req.body,
-      images: images, // store in mongodb
+      ...req.body, // make sure mobile is in req.body
+      images: images,
     });
 
     // ✅ generate token
@@ -34,7 +66,6 @@ exports.createUserData = async (req, res) => {
     });
   }
 };
-
 exports.uploadImages = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -165,5 +196,41 @@ exports.deleteUserData = async (req, res) => {
     res.status(200).json({ success: true, message: "UserData deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+};
+exports.getUserSummary = async (req, res) => {
+  try {
+    // 1️⃣ Get page and limit from query params (default: page=1, limit=10)
+    let { page = 1, limit = 10 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    // 2️⃣ Calculate how many documents to skip
+    const skip = (page - 1) * limit;
+
+    // 3️⃣ Fetch users with pagination
+    const users = await UserData.find({}, "name gender state mobile age createdAt")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // optional: newest first
+
+    // 4️⃣ Get total count for frontend pagination
+    const totalUsers = await UserData.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      page,
+      limit,
+      totalUsers,
+      totalPages: Math.ceil(totalUsers / limit),
+      users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
