@@ -162,7 +162,7 @@ exports.updateInterviewer = async (req, res) => {
       });
     }
 
-    // copy body data (so we can safely modify it)
+    // copy body data (so we can safely modify it)   
     const updateData = { ...req.body };
 
     // ✅ If new profile photos uploaded, save cloudinary URLs

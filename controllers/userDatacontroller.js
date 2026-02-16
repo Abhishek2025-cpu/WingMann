@@ -219,7 +219,7 @@ exports.getUserSummary = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // 3️⃣ Fetch users with pagination
-    const users = await UserData.find({}, "name gender state mobile age createdAt")
+    const users = await UserData.find({}, "name gender state mobile age email createdAt")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 }); // optional: newest first

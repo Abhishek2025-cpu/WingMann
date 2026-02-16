@@ -13,7 +13,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const interviewerAvailibilityRoutes = require("./routes/interviewerAvailibiltyRoutes");
 const callRoutes = require("./routes/call.routes");
 const restaurantRoutes = require("./routes/restaurant.routes");
-const feedbackRoutes = require("./routes/feedback.routes")
+const feedbackRoutes = require("./routes/feedback.routes");
+const{db} = require("./config/firebase");
 // Initialize app`
 const app = express();
 
@@ -34,6 +35,19 @@ app.get('/', (req, res) => {
     message: 'WingMan API is running 🚀'
   })
 })
+
+app.get("/test-firebase", async (req, res) => {
+  try {
+    const snap = await db.collection("test").add({
+      msg: "Firebase connected",
+      createdAt: new Date(),
+    });
+
+    res.json({ success: true, id: snap.id });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 
 app.get('/health', (req, res) => {

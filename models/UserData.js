@@ -61,6 +61,14 @@ const userDataSchema = new mongoose.Schema(
       unique: true,
       trim: true
     },
+
+    email: {
+      type: String, 
+      required: true,
+      unique: true,
+      lowercase: true
+    },
+
     age: {
       type: Number
     },
