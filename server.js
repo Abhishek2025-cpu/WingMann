@@ -14,6 +14,8 @@ const interviewerAvailibilityRoutes = require("./routes/interviewerAvailibiltyRo
 const callRoutes = require("./routes/call.routes");
 const restaurantRoutes = require("./routes/restaurant.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
+const visitsRoutes = require("./routes/visitRoutes");
+
 const{db} = require("./config/firebase");
 // Initialize app`
 const app = express();
@@ -67,7 +69,8 @@ app.use("/api/admin", adminRoutes)
 app.use("/api/interviewer-availability", interviewerAvailibilityRoutes)
 app.use('/api/call', callRoutes);
 app.use("/api/restaurants", restaurantRoutes);
-app.use("/api/feedback",feedbackRoutes)
+app.use("/api/feedback",feedbackRoutes);
+app.use("/api/visits", visitsRoutes)
 
 
 
