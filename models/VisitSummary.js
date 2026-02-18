@@ -6,6 +6,10 @@ const visitSummarySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    totalVisits: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

@@ -1,53 +1,63 @@
 const Visit = require("../models/Visit");
 const VisitSummary = require("../models/VisitSummary");
 
-// ✅ POST: Add visit (unique)
 exports.addVisit = async (req, res) => {
   try {
-    const userId = req.user.id; // 🔥 decoded token se
+    const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "User not found in token",
+        message: "User ID missing from request",
+        visited: false,
       });
     }
 
-    // Summary doc
+    // 1️⃣ Find or create summary document
     let summary = await VisitSummary.findOne();
-    if (!summary) summary = await VisitSummary.create({ totalUniqueVisitors: 0 });
+    if (!summary) {
+      summary = await VisitSummary.create({
+        totalUniqueVisitors: 0,
+        totalVisits: 0,
+      });
+    }
 
-    // Check already visited?
+    // 2️⃣ Check if this user has already visited
     const alreadyVisited = await Visit.findOne({ user: userId });
 
-    if (alreadyVisited) {
-      return res.status(200).json({
+    if (!alreadyVisited) {
+      // 3️⃣ Record visit only for new users
+      await Visit.create({
+        user: userId,
+        visitedAt: new Date(),
+      });
+
+      // 4️⃣ Update summary counters
+      summary.totalUniqueVisitors += 1;
+      summary.totalVisits += 1;
+      await summary.save();
+
+      return res.status(201).json({
         success: true,
-        message: "User already visited",
+        message: "Visit counted successfully",
         visited: true,
         totalUniqueVisitors: summary.totalUniqueVisitors,
+        totalVisits: summary.totalVisits,
       });
     }
 
-    // Create visit record
-    await Visit.create({
-      user: userId,
-      visited: true,
-      visitedAt: new Date(),
-    });
-
-    // Update summary
-    summary.totalUniqueVisitors = summary.totalUniqueVisitors + 1;
-    await summary.save();
-
-    return res.status(201).json({
+    // 5️⃣ If user already visited, return existing summary
+    return res.status(200).json({
       success: true,
-      message: "Visit counted successfully",
+      message: "User already visited",
       visited: true,
       totalUniqueVisitors: summary.totalUniqueVisitors,
+      totalVisits: summary.totalVisits,
     });
+
   } catch (error) {
-    console.log("addVisit error:", error);
+    console.error("addVisit ERROR:", error.message);
+    console.error(error.stack);
 
     return res.status(500).json({
       success: false,

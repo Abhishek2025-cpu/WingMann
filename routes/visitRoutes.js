@@ -6,8 +6,9 @@ const {
   checkMyVisit,
   getVisitSummary,
 } = require("../controllers/visitController");
+const protect = require("../middlewares/visitorMiddleware");
 
-const { protect } = require("../middlewares/authMiddleware");
+
 
 router.post("/add", protect, addVisit);
 router.get("/check", protect, checkMyVisit);

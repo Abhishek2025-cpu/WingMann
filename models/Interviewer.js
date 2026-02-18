@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const interviewerSchema = new mongoose.Schema(
   {
+    // --- Existing fields (unchanged) ---
     name: { type: String, required: true, trim: true },
     email: { type: String, unique: true, required: true, lowercase: true },
     password: { type: String, required: true },
@@ -16,15 +17,22 @@ const interviewerSchema = new mongoose.Schema(
     designation: { type: String, default: "" },
     experience: { type: Number, default: 0 },
     skills: [{ type: String }],
-    
-    // Multiple profile photos
     profilePhotos: [{ type: String, default: [] }],
-
     resume: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" }, // Removed required:true to prevent crash if req.user is missing during testing
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
+
+    // --- NEW FIELD FOR SLOT MANAGEMENT ---
+    availableSlots: [
+      {
+        day: { type: String, required: true },
+        time: { type: String, required: true },
+        isBooked: { type: Boolean, default: false }, // true if slot is assigned
+      },
+    ],
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Interviewer", interviewerSchema);
+// --- Overwrite-safe export (fixes OverwriteModelError) ---
+module.exports = mongoose.models.Interviewer || mongoose.model("Interviewer", interviewerSchema);

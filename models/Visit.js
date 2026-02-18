@@ -1,23 +1,16 @@
 const mongoose = require("mongoose");
 
-const visitSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserData",
-      required: true,
-      unique: true,
-    },
-    visited: {
-      type: Boolean,
-      default: true,
-    },
-    visitedAt: {
-      type: Date,
-      default: Date.now,
-    },
+const visitSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    unique: true, // ensures only one visit per user
+    required: true,
   },
-  { timestamps: true }
-);
+  visitedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-module.exports = mongoose.model("Visit", visitSchema);
+module.exports = mongoose.model("Visit", visitSchema)

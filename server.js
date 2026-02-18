@@ -15,8 +15,8 @@ const callRoutes = require("./routes/call.routes");
 const restaurantRoutes = require("./routes/restaurant.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
 const visitsRoutes = require("./routes/visitRoutes");
+const interviewRoutes = require("./routes/interviewRoutes");
 
-const{db} = require("./config/firebase");
 // Initialize app`
 const app = express();
 
@@ -38,20 +38,6 @@ app.get('/', (req, res) => {
   })
 })
 
-app.get("/test-firebase", async (req, res) => {
-  try {
-    const snap = await db.collection("test").add({
-      msg: "Firebase connected",
-      createdAt: new Date(),
-    });
-
-    res.json({ success: true, id: snap.id });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
@@ -70,7 +56,9 @@ app.use("/api/interviewer-availability", interviewerAvailibilityRoutes)
 app.use('/api/call', callRoutes);
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/feedback",feedbackRoutes);
-app.use("/api/visits", visitsRoutes)
+app.use("/api/visits", visitsRoutes);
+// Use routes
+app.use("/api/interview", interviewRoutes);
 
 
 

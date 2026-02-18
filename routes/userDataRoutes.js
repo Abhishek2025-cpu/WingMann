@@ -54,7 +54,8 @@ const {
   updateUserData,
   deleteUserData,
   uploadImages,
-  getUserSummary
+  getUserSummary,
+  saveAvailability30MinSlots
 } = require("../controllers/userDatacontroller");
 
 const { protect } = require("../middlewares/authMiddleware");
@@ -67,6 +68,8 @@ router.post("/create", upload.array("images", 6), createUserData);
 
 // 2. UPLOAD ONLY: Sirf images upload karne ke liye (Existing users ke liye)
 router.post("/upload-images", protect, upload.array("images", 6), uploadImages);
+
+router.post("/save-30mins-slots", protect, saveAvailability30MinSlots);
 
 // 3. GET DATA
 router.get("/get", protect, getAllUserData);

@@ -1,52 +1,3 @@
-// const mongoose = require("mongoose");
-
-// const timeSlotSchema = new mongoose.Schema(
-//   {
-//     startTime: { type: String, required: true },
-//     endTime: { type: String, required: true },
-//     isBooked: { type: Boolean, default: false },
-//   },
-//   { _id: false }
-// );
-
-// const interviewerAvailabilitySchema = new mongoose.Schema(
-//   {
-//     interviewerId: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "Interviewer",
-//       required: true,
-//     },
-
-//     // ✅ NEW FIELD
-//      userDataId: { // ✅ ADD THIS
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: "UserData"
-//   },
-
-//     date: {
-//       type: String,
-//       required: true,
-//       trim: true,
-//     },
-
-//     timeSlots: {
-//       type: [timeSlotSchema],
-//       default: [],
-//     },
-//   },
-//   { timestamps: true }
-// );
-
-// // ✅ unique: one interviewer + userData + date
-// interviewerAvailabilitySchema.index(
-//   { interviewerId: 1, userDataId: 1, date: 1 },
-//   { unique: true }
-// );
-
-// module.exports = mongoose.model(
-//   "InterviewerAvailability",
-//   interviewerAvailabilitySchema
-// );
 const mongoose = require("mongoose");
 
 const timeSlotSchema = new mongoose.Schema(
@@ -66,8 +17,8 @@ const interviewerAvailabilitySchema = new mongoose.Schema(
       required: true,
     },
 
-    date: {
-      type: String, // "Monday" OR "YYYY-MM-DD"
+    day: {
+      type: String, // "Monday", "Tuesday", etc.
       required: true,
       trim: true,
     },
@@ -80,9 +31,9 @@ const interviewerAvailabilitySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ✅ One interviewer + one date key (weekly or specific)
+// ✅ One interviewer + one day key (weekly schedule)
 interviewerAvailabilitySchema.index(
-  { interviewerId: 1, date: 1 },
+  { interviewerId: 1, day: 1 },
   { unique: true }
 );
 
