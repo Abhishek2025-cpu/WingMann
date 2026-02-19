@@ -1,6 +1,7 @@
 const UserData = require("../models/UserData");
 const Interviewer = require("../models/Interviewer");
 const Interview = require("../models/Interview");
+const UserAvailability = require("../models/UserAvailability");
 
 // Helper: deterministic pseudo-random index from string
 function hashToIndex(str, max) {
@@ -21,40 +22,77 @@ exports.createInterview = async (req, res) => {
     }
 
     const user = await UserData.findById(userDataId);
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     // Fetch all active interviewers
     const interviewers = await Interviewer.find({ isActive: true });
-    if (!interviewers.length) return res.status(404).json({ success: false, message: "No interviewers available" });
+    if (!interviewers.length) {
+      return res.status(404).json({ success: false, message: "No interviewers available" });
+    }
 
     const assignedSlots = [];
 
     for (let slot of slots) {
-      // Filter interviewers who have this slot free
-      const availableInterviewers = interviewers.filter(interviewer =>
+      // ✅ Accept both day/date and time/startTime
+      const slotDay = slot.day || slot.date;
+      const slotTime = slot.time || slot.startTime;
+
+      if (!slotDay || !slotTime) continue;
+
+     
+      const userAvailability = await UserAvailability.findOne({
+        userDataId,
+        date: slotDay,
+        timeSlots: {
+          $elemMatch: {
+            startTime: slotTime,
+            isBooked: false,
+          },
+        },
+      });
+
+      
+      if (!userAvailability) continue;
+
+      const availableInterviewers = interviewers.filter((interviewer) =>
         interviewer.availableSlots.some(
-          s => s.day === slot.day && s.time === slot.time && !s.isBooked
+          (s) => s.day === slotDay && s.time === slotTime && !s.isBooked
         )
       );
 
-      if (!availableInterviewers.length) continue; // Skip if no free interviewer
+      if (!availableInterviewers.length) continue;
 
-      // Pseudo-random deterministic pick based on slot day+time
-      const index = hashToIndex(slot.day + slot.time, availableInterviewers.length);
+  
+      const index = hashToIndex(slotDay + slotTime, availableInterviewers.length);
       const selectedInterviewer = availableInterviewers[index];
 
-      // Mark the slot as booked
-      const slotToBook = selectedInterviewer.availableSlots.find(
-        s => s.day === slot.day && s.time === slot.time
+  
+      const interviewerSlotToBook = selectedInterviewer.availableSlots.find(
+        (s) => s.day === slotDay && s.time === slotTime
       );
-      slotToBook.isBooked = true;
+
+      if (!interviewerSlotToBook) continue;
+
+      interviewerSlotToBook.isBooked = true;
       await selectedInterviewer.save();
 
-      // Create interview record
+  
+      const userSlotToBook = userAvailability.timeSlots.find(
+        (t) => t.startTime === slotTime && t.isBooked === false
+      );
+
+      if (!userSlotToBook) continue;
+
+      userSlotToBook.isBooked = true;
+      await userAvailability.save();
+
+  
       await Interview.create({
         userDataId,
         interviewerId: selectedInterviewer._id,
-        slots: [{ day: slot.day, time: slot.time }],
+        slots: [{ day: slotDay, time: slotTime }],
       });
 
       // Push to response array
@@ -63,17 +101,22 @@ exports.createInterview = async (req, res) => {
         userName: user.name,
         interviewerId: selectedInterviewer._id,
         interviewerName: selectedInterviewer.name,
-        slots: [{ day: slot.day, time: slot.time }],
+        slots: [{ day: slotDay, time: slotTime }],
       });
     }
 
-    if (!assignedSlots.length)
+    if (!assignedSlots.length) {
       return res.status(400).json({ success: false, message: "No slots could be assigned" });
+    }
 
     return res.status(200).json({ success: true, data: assignedSlots });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ success: false, message: "Server error", error: err.message });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
 
