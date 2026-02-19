@@ -245,7 +245,7 @@ exports.getUserSummary = async (req, res) => {
   }
 };
 
-
+// create 30 min slots
 const timeToMinutes = (time) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
@@ -354,6 +354,45 @@ exports.saveAvailability30MinSlots = async (req, res) => {
       success: true,
       message: "Availability saved successfully in 30-min slots",
       data: saved,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.getAvailabilityOfSlots = async (req, res) => {
+  try {
+    const { userDataId } = req.query; // ✅ from params tab
+
+    if (!userDataId) {
+      return res.status(400).json({
+        success: false,
+        message: "userDataId is required",
+      });
+    }
+
+    // check user exists
+    const user = await UserData.findById(userDataId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "UserData not found",
+      });
+    }
+
+    // get all availability of user
+    const availabilities = await UserAvailability.find({ userDataId }).sort({
+      date: 1,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "User availability fetched successfully",
+      totalDays: availabilities.length,
+      data: availabilities,
     });
   } catch (error) {
     return res.status(500).json({

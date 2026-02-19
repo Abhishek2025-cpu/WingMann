@@ -3,55 +3,6 @@ const Interviewer = require("../models/Interviewer");
 const UserData = require("../models/UserData");
 const mongoose = require("mongoose")
 // ✅ 1) SET AVAILABILITY (Create/Update for same date)
-// exports.setAvailabilityForDate = async (req, res) => {
-//   try {
-//     const { interviewerId, date, timeSlots } = req.body;
-
-//     if (!interviewerId || !date) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "interviewerId and date are required",
-//       });
-//     }
-
-//     if (!timeSlots || !Array.isArray(timeSlots) || timeSlots.length === 0) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "timeSlots array is required",
-//       });
-//     }
-
-//     // interviewer exists check
-//     const interviewer = await Interviewer.findById(interviewerId);
-//     if (!interviewer) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Interviewer not found",
-//       });
-//     }
-
-//     const selectedDate = String(date).trim(); // "YYYY-MM-DD"
-
-//     // upsert
-//     const saved = await InterviewerAvailability.findOneAndUpdate(
-//       { interviewerId, date: selectedDate },
-//       { $set: { timeSlots } },
-//       { new: true, upsert: true }
-//     );
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Availability saved successfully",
-//       data: saved,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
-
 exports.setAvailabilityForDay = async (req, res) => {
   try {
     const { interviewerId, day, timeSlots } = req.body;
@@ -91,25 +42,6 @@ exports.setAvailabilityForDay = async (req, res) => {
 
 
 // ✅ 2) GET ALL AVAILABILITY (All dates) of interviewer
-// exports.getAvailabilityByInterviewer = async (req, res) => {
-//   try {
-//     const { interviewerId } = req.params;
-
-//     const data = await InterviewerAvailability.find({ interviewerId })
-//       .sort({ date: 1 });
-
-//     return res.status(200).json({
-//       success: true,
-//       total: data.length,
-//       data,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
 exports.getAvailabilityByInterviewer = async (req, res) => {
   try {
     const { interviewerId } = req.params;
@@ -158,69 +90,7 @@ exports.getAllInterviewersAvailability = async (req, res) => {
 };
 
 
-// ✅ 5) UPDATE DATE + TIMESLOTS by availabilityId
-// exports.updateAvailability = async (req, res) => {
-//   try {
-//     const { availabilityId } = req.params;
-//     const { date, timeSlots } = req.body;
 
-//     // ✅ ObjectId validation
-//     if (!mongoose.Types.ObjectId.isValid(availabilityId)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid availabilityId",
-//       });
-//     }
-
-//     const availability = await InterviewerAvailability.findById(availabilityId);
-
-//     if (!availability) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Availability not found",
-//       });
-//     }
-
-//     // ✅ Date duplicate check (must include userDataId too)
-//     if (date) {
-//       const newDate = String(date).trim();
-
-//       const alreadyExists = await InterviewerAvailability.findOne({
-//         interviewerId: availability.interviewerId,
-//         userDataId: availability.userDataId, // ✅ IMPORTANT
-//         date: newDate,
-//         _id: { $ne: availabilityId },
-//       });
-
-//       if (alreadyExists) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Availability already exists for this date",
-//         });
-//       }
-
-//       availability.date = newDate;
-//     }
-
-//     // update timeSlots
-//     if (timeSlots && Array.isArray(timeSlots)) {
-//       availability.timeSlots = timeSlots;
-//     }
-
-//     await availability.save();
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Availability updated successfully",
-//       data: availability,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
 exports.updateAvailability = async (req, res) => {
   try {
     const { availabilityId } = req.params;
@@ -306,38 +176,11 @@ exports.deleteSlot = async (req, res) => {
   }
 };
 
-// exports.deleteAvailability = async (req, res) => {
-//   try {
-//     const { availabilityId } = req.params;
-
-//     const deleted = await InterviewerAvailability.findByIdAndDelete(availabilityId);
-
-//     if (!deleted) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Availability not found",
-//       });
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Availability deleted successfully",
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
-//30 minutes time slots
-
-// helpers
 
 
 exports.deleteAvailabilityByDate = async (req, res) => {
   try {
-    const { interviewerId, date } = req.body;
+    const { interviewerId, date } = req.query;
 
     if (!interviewerId || !date) {
       return res.status(400).json({
@@ -370,9 +213,10 @@ exports.deleteAvailabilityByDate = async (req, res) => {
   }
 };
 
+
 exports.deleteSlotByDate = async (req, res) => {
   try {
-    const { interviewerId, date, slotId } = req.body;
+    const { interviewerId, date, slotId } = req.query;
 
     if (!interviewerId || !date || !slotId) {
       return res.status(400).json({
@@ -406,4 +250,3 @@ exports.deleteSlotByDate = async (req, res) => {
     });
   }
 };
-

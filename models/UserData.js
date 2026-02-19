@@ -54,11 +54,6 @@ const userDataSchema = new mongoose.Schema(
       exercise: { type: String, default: "" },
     },
 
-    // images (max 6)
-    // images: {
-    //   type: Array,
-    //   default: [],
-    // },
   },
   { timestamps: true }
 );
